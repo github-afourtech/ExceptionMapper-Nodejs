@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>ExceptionMapper.js</title>
+    <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
+    <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
+    <link rel="stylesheet" href="../assets/css/main.css" id="site_styles">
+    <link rel="shortcut icon" type="image/png" href="../assets/favicon.png">
+    <script src="http://yui.yahooapis.com/combo?3.9.1/build/yui/yui-min.js"></script>
+</head>
+<body class="yui3-skin-sam">
+
+<div id="doc">
+    <div id="hd" class="yui3-g header">
+        <div class="yui3-u-3-4">
+            
+                <h1><img src="../assets/css/logo.png" title=""></h1>
+            
+        </div>
+        <div class="yui3-u-1-4 version">
+            <em>API Docs for: </em>
+        </div>
+    </div>
+    <div id="bd" class="yui3-g">
+
+        <div class="yui3-u-1-4">
+            <div id="docs-sidebar" class="sidebar apidocs">
+                <div id="api-list">
+    <h2 class="off-left">APIs</h2>
+    <div id="api-tabview" class="tabview">
+        <ul class="tabs">
+            <li><a href="#api-classes">Classes</a></li>
+            <li><a href="#api-modules">Modules</a></li>
+        </ul>
+
+        <div id="api-tabview-filter">
+            <input type="search" id="api-filter" placeholder="Type to filter APIs">
+        </div>
+
+        <div id="api-tabview-panel">
+            <ul id="api-classes" class="apis classes">
+            
+                <li><a href="../classes/ExceptionInfo.html">ExceptionInfo</a></li>
+            
+                <li><a href="../classes/ExceptionMapper.html">ExceptionMapper</a></li>
+            
+            </ul>
+
+            <ul id="api-modules" class="apis modules">
+            
+            </ul>
+        </div>
+    </div>
+</div>
+
+            </div>
+        </div>
+        <div class="yui3-u-3-4">
+                <div id="api-options">
+        Show:
+        <label for="api-show-inherited">
+            <input type="checkbox" id="api-show-inherited" checked>
+            Inherited
+        </label>
+
+        <label for="api-show-protected">
+            <input type="checkbox" id="api-show-protected">
+            Protected
+        </label>
+
+        <label for="api-show-private">
+            <input type="checkbox" id="api-show-private">
+            Private
+        </label>
+        <label for="api-show-deprecated">
+            <input type="checkbox" id="api-show-deprecated">
+            Deprecated
+        </label>
+
+    </div>
+
+
+            <div class="apidocs">
+                <div id="docs-main">
+                    <div class="content">
+                        <h1 class="file-heading">File: ExceptionMapper.js</h1>
+
+<div class="file">
+    <pre class="code prettyprint linenums">
+/*
+Copyright 2014 AFour Technologies
+
+Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
+/**
+ *  Mapper Class represents a class that returns description of exception in form of ExceptionInfo Object
+ * @author AFourTechnologies
+ */
+var fs = require(&#x27;fs&#x27;);
+var path = require(&#x27;path&#x27;);
+var moment = require(&#x27;moment&#x27;);
+var HashTable = require(&#x27;jshashtable&#x27;);
+var Enum = require(&#x27;enum&#x27;);
+var Dom = require(&#x27;xmldom&#x27;).DOMParser;
+var jf = require(&#x27;jsonfile&#x27;);
+
+/**
+ *Represents a class that provides general information about exception
+ *@class ExceptionInfo
+ * @constructor
+ */
+
+function ExceptionInfo()
+{
+
+    /**
+     *Exception message-Gets the exception message for exception
+     *
+     * @property message
+     * @type String
+     * @default null
+     */
+    this.message=null;
+
+    /**
+     *Class name - Gets base class name where exception occurred.
+     * @property className
+     * @type String
+     * @default null
+     */
+    this.className=null;
+
+    /**
+     *Alternate text- Gets alternate text for the exception
+     * @property alternateText
+     * @type String
+     * @default null
+     */
+    this.alternateText=null;
+
+    /**
+     *Exception Type- Gets the type of exception
+     * @property exceptionType
+     * @type String
+     * @default null
+     */
+    this.exceptionType=null;
+
+    /**
+     *Stack Trace- Gets stack trace information about exception
+     * @property stackTrace
+     * @type String
+     * @default null
+     */
+    this.stackTrace=null;
+
+    /**
+     *Status Code-Gets status code for the call indicating success or failure
+     * @property statusCode
+     * @type String
+     * @default null
+     */
+    this.statusCode=null;
+}
+
+/**
+ *Specify the file path where ExceptionMapping.xml is located.
+ * @attribute xmlFilePath
+ * @readOnly
+ * @default null;
+ */
+var xmlFilePath=null;
+
+/*
+ *This Hashtable is used for one time caching of xml file.
+ * @attribute exceptionTypeHashtable
+ * @readOnly
+ * @default null;
+ */
+   var exceptionTypeHashtable =null;
+
+/*
+This Hashatble is used to store messages tag from xml file.
+ * @attribute messageHashtable
+ * @readOnly
+ * @default null;
+ */
+   var messageHashtable=null;
+
+/*
+ Status code for current error.
+ * @attribute statusCodeDictionaryFinder
+ * @readOnly
+ */
+   var statusCodeDictionaryFinder;
+
+/*
+ *  Enum to find StepCondition type
+ * @attribute stepConditionEnum
+ * @readOnly
+ */
+   var stepConditionEnum = new Enum([&quot;GIVEN&quot;,&quot;WHEN&quot;]);
+
+/*
+ *   Dictionary for checking status of our errors with status code and messages.
+ * @attribute statusCodeDictionary
+ * @readOnly
+ * @default null;
+ */
+   var statusCodeDictionary= null;
+
+
+   /*
+    * initializeErrorCodeDict
+    * @method initializeErrorCodeDict
+    *  Method to initialize Error codes in dictionary
+    */
+ function initializeErrorCodeDict()
+ {
+     statusCodeDictionary = new HashTable();
+     // add elements in the Dictionary
+     statusCodeDictionary.put(100, &quot;Success&quot;);
+     statusCodeDictionary.put(101, &quot;An Error has occurred in our library please contact AFourTech for further Information on debugging this error.&quot;);
+     statusCodeDictionary.put(102, &quot;File Could not be found at following location :&quot;);
+     statusCodeDictionary.put(103, &quot;Syntax Error in file. Please follow proper syntax&quot;);
+ }
+
+
+ /*
+  * cacheXMLDocument
+  * @method cacheXMLDocument
+  * Method to cache xml file to Hashtable
+  */
+ function cacheXMLDocument()
+{
+        initializeErrorCodeDict();
+        var elements=null;
+        if(this.xmlFilePath==null)
+        {
+             xmlFilePath=path.dirname(fs.realpathSync(__filename))+&quot;\\resources\\ExceptionMapping.xml&quot;;
+        }
+        statusCodeDictionary.put(102,  statusCodeDictionary.get(102) + xmlFilePath);
+
+        var isXmlValid=true;
+        try
+        {
+             var data = fs.readFileSync(xmlFilePath,&#x27;ascii&#x27;);
+        }
+        catch(ex)
+        {
+              statusCodeDictionaryFinder=102;
+        }
+
+
+        if(statusCodeDictionaryFinder!=102)
+        {
+               var options = {
+                                locator:{},
+                                errorHandler:{
+                                              warning:function(w){ isXmlValid=false; console.warn(w) ;},
+                                              error:function(e){isXmlValid=false; },
+                                              fatalError:function(f){ isXmlValid=false;}
+                                              }
+                               };
+               try
+               {
+                  var doc = new Dom(options).parseFromString(data);
+                  if(isXmlValid===true)
+                  {
+                       elements=doc.getElementsByTagName(&quot;message&quot;);
+                  }
+                  else
+                  {
+                      throw new Error(Error);
+                  }
+               }
+               catch(ex)
+               {
+                  statusCodeDictionaryFinder=103;
+               }
+               if(statusCodeDictionaryFinder!=102 &amp;&amp; statusCodeDictionaryFinder!=103)
+               {
+                   try
+                    {
+                            var prevExceptionType=null;
+                            var previousMessageHashtable=new HashTable();
+                            var alternateText={};
+                            var exceptionMessage={};
+                            exceptionTypeHashtable = new HashTable();
+                            for(var i=0;i&lt;elements.length;i++)
+                            {
+                                var currentExceptionType= elements[i].parentNode.attributes[0].value;
+                                if(prevExceptionType!==currentExceptionType)
+                                {
+                                    previousMessageHashtable=messageHashtable;
+                                    messageHashtable = new HashTable();
+                                }
+                                if(elements[i].attributes.length &gt; 0)
+                                {
+                                    alternateText= elements[i].attributes[0].value;
+                                    exceptionMessage=elements[i].childNodes[0].nodeValue;
+                                }
+                                else
+                                {
+                                    alternateText=&quot;&quot;;
+                                    exceptionMessage=elements[i].childNodes[0].nodeValue;
+                                }
+                                if(prevExceptionType===null)
+                                {
+                                    messageHashtable.put(exceptionMessage , alternateText);
+                                }
+                                else if(prevExceptionType===currentExceptionType)
+                                {
+                                    messageHashtable.put(exceptionMessage , alternateText);
+                                }
+                                else
+                                {
+                                    exceptionTypeHashtable.put(prevExceptionType, previousMessageHashtable);
+                                    messageHashtable.put(exceptionMessage , alternateText);
+                                }
+                                if(i===elements.length-1)
+                                {
+                                    exceptionTypeHashtable.put(prevExceptionType, messageHashtable);
+                                }
+
+                                prevExceptionType=currentExceptionType;
+                            }
+                            messageHashtable=new HashTable();
+                            messageHashtable.put(&quot;&quot; , &quot;&quot;);
+                            exceptionTypeHashtable.put(&quot;other&quot;, messageHashtable );
+                            if (Error)
+                            {
+                                throw new Error(Error.message);
+                            }
+
+                   }
+                   catch(ex)
+                   {
+                       statusCodeDictionaryFinder=101;
+                   }
+               }
+       }
+}
+
+ /**
+ @class ExceptionMapper
+ */
+module.exports={
+
+        /**
+         * getExceptionInfo
+         * @example
+         * public ExceptionInfo getExceptionInfo(Exception exception, String stepString)}
+         * @method getExceptionInfo
+         * Function to return information about Exception given by user with step level condition provided as parameter.
+         * @param exception object of Exception class
+         * @param stepString   String such as Given ,When ,Then
+         * @return {Object} ExceptionInfo class.
+         */
+
+        getExceInfoWithTwoParam:function getExceptionInfo(exception, stepString )
+        {
+            var exceptionType=null;
+            var alternateText=null;
+            var  whenAndGivenConditionChecker=0;
+            var exInfo=new ExceptionInfo();
+            try
+            {
+                  if(stepString!=null)
+                  {
+                      stepString=stepString.toUpperCase();
+                      if (stepString==stepConditionEnum.GIVEN || stepString==stepConditionEnum.WHEN)
+                      {
+                          exInfo.exceptionType=&quot;Environmental&quot;;
+                          whenAndGivenConditionChecker=1;
+                      }
+                  }
+                  if(exceptionTypeHashtable===null)
+                  {
+                      cacheXMLDocument();
+                  }
+
+                  if(!exceptionTypeHashtable.isEmpty()&amp;&amp;statusCodeDictionaryFinder!=103)
+                  {
+                      var exceptionTypeHashtableAllKeys = exceptionTypeHashtable.keys();
+                      exceptionTypeHashtableAllKeys.forEach(function(hashtableValue)
+                      {
+                          exceptionType=hashtableValue;
+                          messageHashTable=exceptionTypeHashtable.get(hashtableValue);
+                          var exceptionMessages = messageHashTable.keys();
+                          exceptionMessages.forEach(function(messageInHashTable)
+                          {
+                              var  alternetTextOfException=messageHashTable.get(messageInHashTable);
+                              if(messageInHashTable===exception.message)
+                              {
+                                      exInfo.exceptionType=hashtableValue;
+                                       if ((exceptionType===&quot;Functional&quot;) &amp;&amp; whenAndGivenConditionChecker === 1)
+                                       {
+                                           alternateText = &quot;&quot;;
+                                       }
+                                       else
+                                       {
+                                           alternateText = alternetTextOfException;
+                                       }
+                                       if(whenAndGivenConditionChecker===1)
+                                       {
+                                           exInfo.exceptionType=&quot;Environmental&quot;;
+                                       }
+                                       exInfo.alternateText=alternateText;
+                              }
+                          });
+                          exInfo.message=exception;
+                          exInfo.className=exception.name;
+                          exInfo.stackTrace=exception.stack;
+                      });
+
+
+                if(exInfo.exceptionType===null)
+                {
+                    exInfo.exceptionType=&quot;other&quot;;
+                }
+                if(alternateText===null)
+                {
+                    alternateText=&quot;&quot;;
+                }
+                statusCodeDictionaryFinder=100;
+                exInfo.alternateText=alternateText;
+
+                var currentDir = path.dirname(fs.realpathSync(__filename));
+                var dir =currentDir+&quot;\\StackLog&quot;;
+                if(!fs.existsSync(dir))
+                {
+                    fs.mkdirSync(dir);
+                }
+                var now = moment();
+                var currentTime = now.format(&#x27;YYYY-MM-DD hh-mm-ss-SSS&#x27;);
+
+                var logFileName=dir+&quot;\\StackLog &quot;+currentTime+&quot;.log&quot;;
+                fs.writeFile(logFileName, exception.stack, function(err)
+                {
+                    if(err) {console.log(err); statusCodeDictionaryFinder=101; }
+                });
+                exInfo.message=exception;
+                exInfo.className=exception.name;
+                exInfo.stackTrace=exception.stack;
+               }
+            }
+            catch(ex)
+            {
+            }
+             exInfo.exceptionType=exInfo.exceptionType;
+             exInfo.statusCode=statusCodeDictionaryFinder+&quot; - &quot;+statusCodeDictionary.get(statusCodeDictionaryFinder);
+             return  exInfo;
+         },
+
+        /**
+         * getExceptionInfo
+         * @example
+         * public ExceptionInfo getExceptionInfo(Exception exception)}
+         * @method getExceptionInfo
+         * Function to return information about Exception given by user.
+         * @param exception object of Exception class
+         * @return {Object} ExceptionInfo class.
+         */
+         getExceInfoWithOneParam:function getExceptionInfo(exception)
+         {
+                var exceptionType=null;
+                var alternateText=null;
+                var exInfo=new ExceptionInfo();
+                try
+                {
+                   if(exceptionTypeHashtable===null)
+                   {
+                       cacheXMLDocument();
+                   }
+                   if(!exceptionTypeHashtable.isEmpty())
+                   {
+                         var exceptionTypeHashtableAllKeys = exceptionTypeHashtable.keys();
+                         exceptionTypeHashtableAllKeys.forEach(function(hashtableValue)
+                         {
+                             exceptionType=hashtableValue;
+                             messageHashTable=exceptionTypeHashtable.get(hashtableValue);
+                             var exceptionMessages = messageHashTable.keys();
+                             exceptionMessages.forEach(function(messageInHashTable)
+                             {
+                                 var  alternetTextOfException=messageHashTable.get(messageInHashTable);
+
+                                 if(messageInHashTable===exception.message)
+                                 {
+                                     alternateText = alternetTextOfException;
+                                     exInfo.alternateText=alternateText;
+                                     exInfo.exceptionType=hashtableValue;
+                                  }
+                             });
+                             exInfo.message=exception;
+                             exInfo.className=exception.name;
+                             exInfo.stackTrace=exception.stack;
+                          });
+                            if(exInfo.exceptionType===null)
+                            {
+                                exInfo.exceptionType=&quot;other&quot;;
+                            }
+                            if(alternateText===null)
+                            {
+                                alternateText=&quot;&quot;;
+                            }
+                       statusCodeDictionaryFinder=100;
+                       exInfo.alternateText=alternateText;
+
+                       var currentDir = path.dirname(fs.realpathSync(__filename));
+                       var dir =currentDir+&quot;\\StackLog&quot;;
+                       if(!fs.existsSync(dir))
+                       {
+                         fs.mkdirSync(dir);
+                       }
+                       var now = moment();
+                       var currentTime = now.format(&#x27;YYYY-MM-DD hh-mm-ss-SSS&#x27;);
+                       var logFileName=dir+&quot;\\StackLog &quot;+currentTime+&quot;.log&quot;;
+                       fs.writeFile(logFileName, exception.stack, function(err)
+                       {
+                         if(err) {console.log(err); statusCodeDictionaryFinder=101; }
+                       });
+
+                         exInfo.message=exception;
+                         exInfo.className=exception.name;
+                         exInfo.stackTrace=exception.stack;
+                   }
+                }
+                catch(ex)
+                {
+                }
+                exInfo.statusCode=statusCodeDictionaryFinder+&quot; - &quot;+statusCodeDictionary.get(statusCodeDictionaryFinder);
+                return  exInfo;
+         }
+}
+
+
+
+    </pre>
+</div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="../assets/vendor/prettify/prettify-min.js"></script>
+<script>prettyPrint();</script>
+<script src="../assets/js/yui-prettify.js"></script>
+<script src="../assets/../api.js"></script>
+<script src="../assets/js/api-filter.js"></script>
+<script src="../assets/js/api-list.js"></script>
+<script src="../assets/js/api-search.js"></script>
+<script src="../assets/js/apidocs.js"></script>
+</body>
+</html>

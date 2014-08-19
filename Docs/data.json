@@ -1,0 +1,173 @@
+{
+    "project": {},
+    "files": {
+        "ExceptionMapper.js": {
+            "name": "ExceptionMapper.js",
+            "modules": {},
+            "classes": {
+                "ExceptionInfo": 1,
+                "ExceptionMapper": 1
+            },
+            "fors": {},
+            "namespaces": {}
+        }
+    },
+    "modules": {},
+    "classes": {
+        "ExceptionInfo": {
+            "name": "ExceptionInfo",
+            "shortname": "ExceptionInfo",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "file": "ExceptionMapper.js",
+            "line": 29,
+            "description": "Represents a class that provides general information about exception",
+            "is_constructor": 1
+        },
+        "ExceptionMapper": {
+            "name": "ExceptionMapper",
+            "shortname": "ExceptionMapper",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "file": "ExceptionMapper.js",
+            "line": 267
+        }
+    },
+    "classitems": [
+        {
+            "file": "ExceptionMapper.js",
+            "line": 17,
+            "description": "Mapper Class represents a class that returns description of exception in form of ExceptionInfo Object",
+            "author": "AFourTechnologies",
+            "class": "ExceptionInfo"
+        },
+        {
+            "file": "ExceptionMapper.js",
+            "line": 38,
+            "description": "Exception message-Gets the exception message for exception",
+            "itemtype": "property",
+            "name": "message",
+            "type": "String",
+            "default": "null",
+            "class": "ExceptionInfo"
+        },
+        {
+            "file": "ExceptionMapper.js",
+            "line": 47,
+            "description": "Class name - Gets base class name where exception occurred.",
+            "itemtype": "property",
+            "name": "className",
+            "type": "String",
+            "default": "null",
+            "class": "ExceptionInfo"
+        },
+        {
+            "file": "ExceptionMapper.js",
+            "line": 55,
+            "description": "Alternate text- Gets alternate text for the exception",
+            "itemtype": "property",
+            "name": "alternateText",
+            "type": "String",
+            "default": "null",
+            "class": "ExceptionInfo"
+        },
+        {
+            "file": "ExceptionMapper.js",
+            "line": 63,
+            "description": "Exception Type- Gets the type of exception",
+            "itemtype": "property",
+            "name": "exceptionType",
+            "type": "String",
+            "default": "null",
+            "class": "ExceptionInfo"
+        },
+        {
+            "file": "ExceptionMapper.js",
+            "line": 71,
+            "description": "Stack Trace- Gets stack trace information about exception",
+            "itemtype": "property",
+            "name": "stackTrace",
+            "type": "String",
+            "default": "null",
+            "class": "ExceptionInfo"
+        },
+        {
+            "file": "ExceptionMapper.js",
+            "line": 79,
+            "description": "Status Code-Gets status code for the call indicating success or failure",
+            "itemtype": "property",
+            "name": "statusCode",
+            "type": "String",
+            "default": "null",
+            "class": "ExceptionInfo"
+        },
+        {
+            "file": "ExceptionMapper.js",
+            "line": 88,
+            "description": "Specify the file path where ExceptionMapping.xml is located.",
+            "itemtype": "attribute",
+            "name": "xmlFilePath",
+            "readonly": "",
+            "default": "null;",
+            "class": "ExceptionInfo"
+        },
+        {
+            "file": "ExceptionMapper.js",
+            "line": 272,
+            "description": "getExceptionInfo",
+            "example": [
+                "\npublic ExceptionInfo getExceptionInfo(Exception exception, String stepString)}"
+            ],
+            "itemtype": "method",
+            "name": "getExceptionInfo\nFunction to return information about Exception given by user with step level condition provided as parameter.",
+            "params": [
+                {
+                    "name": "exception",
+                    "description": "object of Exception class"
+                },
+                {
+                    "name": "stepString",
+                    "description": "String such as Given ,When ,Then"
+                }
+            ],
+            "return": {
+                "description": "ExceptionInfo class.",
+                "type": "Object"
+            },
+            "class": "ExceptionMapper"
+        },
+        {
+            "file": "ExceptionMapper.js",
+            "line": 378,
+            "description": "getExceptionInfo",
+            "example": [
+                "\npublic ExceptionInfo getExceptionInfo(Exception exception)}"
+            ],
+            "itemtype": "method",
+            "name": "getExceptionInfo\nFunction to return information about Exception given by user.",
+            "params": [
+                {
+                    "name": "exception",
+                    "description": "object of Exception class"
+                }
+            ],
+            "return": {
+                "description": "ExceptionInfo class.",
+                "type": "Object"
+            },
+            "class": "ExceptionMapper"
+        }
+    ],
+    "warnings": [
+        {
+            "message": "Missing item type\nMapper Class represents a class that returns description of exception in form of ExceptionInfo Object",
+            "line": " ExceptionMapper.js:17"
+        }
+    ]
+}

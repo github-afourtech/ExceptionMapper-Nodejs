@@ -1,0 +1,23 @@
+{
+  "name": "AFourTech.ExceptionMapper",
+  "version": "1.0.0",
+  "description": "Mapper Class represents a class that returns description of exception in form of ExceptionInfo Object",
+  "main": "\"\"",
+  "directories": {
+    "doc": "docs"
+  },
+  "dependencies": {
+    "enum": "^0.2.6",
+    "jshashtable": "^0.1.0",
+    "moment": "^2.8.0",
+    "syntax-error": "^1.1.1",
+    "jsonfile": "^2.0.0",
+    "xmldom": "^0.1.19"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "AFourTechnologies",
+  "license": "Apache License, Version 2.0"
+}

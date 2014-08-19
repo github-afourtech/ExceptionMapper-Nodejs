@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright 2014 AFour Technologies
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.-->
+<ExceptionMapping>
+  <FunctionalException text="Functional">  
+        <message>Insufficient memory to continue the execution of the program.</message>   
+        <message>One of the identified items was in an invalid format.</message> 
+		<message alternateText ="Insufficient Stack">Insufficient stack to continue executing the program safely. This can happen from having too many functions on the call stack or function on the stack using too much stack space.</message>
+		<message alternateText ="Invalid Field Exception">Attempted to access a field that is not accessible by the caller.</message>
+		<message alternateText ="Divide By Zero">divided by 0</message>	
+		<message alternateText ="Invalid Member">Cannot access member.</message>
+		<message alternateText ="Missing Field">Attempted to access a non-existing field.</message>
+		<message alternateText ="Null Reference">Object reference not set to an instance of an object.</message>
+		<message alternateText ="Overflow Operation">Arithmetic operation resulted in an overflow.</message>
+		<message alternateText ="Divide By 0">Attempted to divide by zero.</message>
+		<message alternateText ="Divide By 000">/ by zero</message>
+		<message alternateText ="ReferenceError...">err is not defined</message>
+  </FunctionalException>
+  <EnvironmentalException text="Environmental">
+		<message>Index was outside the bounds of the array.</message>		
+		<message alternateText ="File Not Found">No such file or directory</message>
+		<message alternateText ="Invalid Time Zone">Exception of type 'System.InvalidTimeZoneException' was thrown.</message>		
+ </EnvironmentalException>
+<OtherException text="Other"/>
+</ExceptionMapping>
